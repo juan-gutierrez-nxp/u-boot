@@ -308,8 +308,9 @@ void setup_clocks_enet_gmac(int intf, struct udevice *gmac_dev)
 	/* configure interface specific clocks */
 	switch (intf) {
 	case PHY_INTERFACE_MODE_SGMII:
+		printf("==== SGMII =====\n");
 		tx_id = S32GEN1_CLK_SERDES0_LANE0_TX;
-		rx_id = S32GEN1_CLK_GMAC0_EXT_RX;
+		rx_id = S32GEN1_CLK_SERDES0_LANE0_CDR;
 		break;
 
 	case PHY_INTERFACE_MODE_RGMII:

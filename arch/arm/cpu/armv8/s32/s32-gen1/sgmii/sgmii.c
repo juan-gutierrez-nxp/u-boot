@@ -96,13 +96,13 @@ int s32_sgmii_wait_link(int serdes, int xpcs)
 	if (!xpcs_base)
 		return -EINVAL;
 
-	debug("Waiting for link (SerDes%d XPCS%i)...\n", serdes, xpcs);
+	printf("Waiting for link (SerDes%d XPCS%i)...\n", serdes, xpcs);
 	ret = serdes_wait_for_link(serdes_base, xpcs_base, 1U);
 
 	if (ret)
 		printf("SerDes%d XPCS%i link timed-out\n", serdes, xpcs);
 	else
-		debug("SerDes%d XPCS%i link is up\n", serdes, xpcs);
+		printf("SerDes%d XPCS%i link is up\n", serdes, xpcs);
 
 	return ret;
 }
@@ -154,7 +154,7 @@ int s32_sgmii_get_speed(int serdes, int xpcs, int *mbps, bool *fd, bool *an)
 
 	ret = serdes_xpcs_get_sgmii_speed(serdes_base, xpcs_base,
 					  mbps, fd, an);
-	debug("SerDes%d XPCS%d is configured to %dMbs (AN %s, %s)",
+	printf("SerDes%d XPCS%d is configured to %dMbs (AN %s, %s)",
 	      serdes, xpcs, *mbps,
 	      an ? "ON" : "OFF",
 	      fd ? "FD" : "HD");
@@ -183,7 +183,7 @@ int s32_sgmii_set_speed(int serdes, int xpcs, int mbps, bool fd, bool an)
 
 	ret = serdes_xpcs_set_sgmii_speed(serdes_base, xpcs_base,
 					  mbps, fd);
-	debug("SerDes%d XPCS%d config was updated to %dMbs (AN %s, %s)",
+	printf("SerDes%d XPCS%d config was updated to %dMbs (AN %s, %s)",
 	      serdes, xpcs, mbps,
 	      an ? "ON" : "OFF",
 	      fd ? "FD" : "HD");
@@ -197,7 +197,7 @@ static void s32_serdes_no_pcie_init(void)
 {
 	struct udevice *bus;
 
-	debug("%s\n", __func__);
+	printf("%s\n", __func__);
 
 	/*
 	 * Enumerate all known UCLASS_PCI_GENERIC devices. This will
@@ -264,6 +264,8 @@ int s32_eth_xpcs_init(void __iomem *serdes_base, int id,
 	bool xpcs0 = false;
 	bool xpcs1 = false;
 
+	printf(" s32_eth_xpcs_init 1\n");
+
 	xpcs0_base = s32_get_xpcs_base(0);
 	if (!xpcs0_base)
 		return -EINVAL;
@@ -276,6 +278,8 @@ int s32_eth_xpcs_init(void __iomem *serdes_base, int id,
 		printf("Invalid XPCS ID %d\n", id);
 		return false;
 	}
+
+	printf(" s32_eth_xpcs_init 2\n");
 
 	xpcs_cfg[id].xpcs_mode = SGMII_INAVALID;
 
@@ -304,8 +308,10 @@ int s32_eth_xpcs_init(void __iomem *serdes_base, int id,
 		return -EINVAL;
 	}
 
+	printf(" s32_eth_xpcs_init 3\n");
+
 	if (xpcs1) {
-		debug("SerDes %d XPCS_1 init to 1G mode started\n", id);
+		printf("SerDes %d XPCS_1 init to 1G mode started\n", id);
 		retval = serdes_xpcs_set_1000_mode(serdes_base,
 						   xpcs1_base,
 						   clktype, fmhz, combo);
@@ -313,11 +319,13 @@ int s32_eth_xpcs_init(void __iomem *serdes_base, int id,
 			printf("SerDes %d XPCS_1 init failed\n", id);
 			return retval;
 		}
-		debug("SerDes %d XPCS_1 init to 1G mode successful\n", id);
+		printf("SerDes %d XPCS_1 init to 1G mode successful\n", id);
 	}
 
+	printf(" s32_eth_xpcs_init 4\n");
+
 	if (xpcs0) {
-		debug("SerDes %d XPCS_0 init to 1G mode started\n", id);
+		printf("SerDes %d XPCS_0 init to 1G mode started\n", id);
 		retval = serdes_xpcs_set_1000_mode(serdes_base,
 						   xpcs0_base,
 						   clktype, fmhz, combo);
@@ -325,8 +333,10 @@ int s32_eth_xpcs_init(void __iomem *serdes_base, int id,
 			printf("SerDes %d XPCS_0 init failed\n", id);
 			return retval;
 		}
-		debug("SerDes %d XPCS_0 init to 1G mode successful\n", id);
+		printf("SerDes %d XPCS_0 init to 1G mode successful\n", id);
 	}
+
+	printf(" s32_eth_xpcs_init 5\n");
 
 	if (xpcs0) {
 		/*	Configure XPCS_0 speed (1000Mpbs, Full duplex) */
@@ -337,6 +347,8 @@ int s32_eth_xpcs_init(void __iomem *serdes_base, int id,
 			return retval;
 	}
 
+	printf(" s32_eth_xpcs_init 6\n");
+
 	if (xpcs1) {
 		/*	Configure XPCS_1 speed (1000Mpbs, Full duplex) */
 		retval = serdes_xpcs_set_sgmii_speed(serdes_base,
@@ -346,6 +358,8 @@ int s32_eth_xpcs_init(void __iomem *serdes_base, int id,
 			return retval;
 	}
 
+	printf(" s32_eth_xpcs_init 7\n");
+
 	if (xpcs_mode == SGMII_XPCS0_2G5) {
 		retval = serdes_xpcs_set_2500_mode(serdes_base,
 						   xpcs0_base,
@@ -354,10 +368,12 @@ int s32_eth_xpcs_init(void __iomem *serdes_base, int id,
 			printf("XPCS_0 init failed\n");
 			return retval;
 		}
-		debug("XPCS_0 in 2.5G mode\n");
+		printf("XPCS_0 in 2.5G mode\n");
 	}
 
-	debug("SerDes Init Done.\n");
+	printf(" s32_eth_xpcs_init 8\n");
+
+	printf("SerDes Init Done.\n");
 
 	xpcs_cfg[id].xpcs_mode = xpcs_mode;
 	xpcs_cfg[id].is_init = true;

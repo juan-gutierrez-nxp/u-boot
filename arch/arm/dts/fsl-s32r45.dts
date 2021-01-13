@@ -154,8 +154,11 @@
 	clock-names = "tx", "rx", "ts", "axi";
 
 	status = "okay";
-	phy-mode = "rgmii";
-	phy-handle = <&gmac0_phy1>;
+	phy-mode = "sgmii";
+        fixed-link {
+                speed = <1000>;
+                full-duplex;
+        };
 };
 
 &gmac0_mdio {

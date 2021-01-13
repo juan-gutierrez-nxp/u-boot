@@ -224,8 +224,13 @@ static int cgm_mux_clk_config(void *cgm_addr, u32 mux, u32 source)
 	 */
 	css = readl(CGM_MUXn_CSS(cgm_addr, mux));
 	if ((MC_CGM_MUXn_CSS_SWTRG(css) == MC_CGM_MUXn_CSS_SWTRG_SUCCESS) &&
-	    (MC_CGM_MUXn_CSS_SELSTAT(css) == source))
+	    (MC_CGM_MUXn_CSS_SELSTAT(css) == source)) {
+		if ( (source == 40) || (source == 41)) {
+			printf("Success to to change the clock source of mux %d to %d (CGM = %p)\n",
+			               mux, source, cgm_addr);
+		}
 		return 0;
+	}
 
 	pr_err("Failed to change the clock source of mux %d to %d (CGM = %p)\n",
 	       mux, source, cgm_addr);

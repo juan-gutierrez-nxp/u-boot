@@ -445,10 +445,10 @@ int serdes_xpcs_set_1000_mode(void *base, u32 xpcs,
 	/* Issue reset */
 	/*	(Switch to 1G mode: #16) */
 	if (serdes_xpcs_wait_for_reset(base, xpcs))
-		pr_err("XPCS pre power-up soft reset failed\n");
+		printf("XPCS pre power-up soft reset failed\n");
 
 	/*	Wait for XPCS power up */
-	pr_debug("Waiting for XPCS power-up\n");
+	printf("Waiting for XPCS power-up\n");
 	if (serdes_xpcs_wait_for_power_good(base, xpcs)) {
 		pr_err("XPCS power-up failed\n");
 		return -EXIT_FAILURE;
@@ -569,7 +569,7 @@ int serdes_xpcs_set_2500_mode(void *base, u32 xpcs,
 		pr_err("XPCS pre power-up soft reset failed\n");
 
 	/*	Wait for XPCS power up */
-	pr_debug("Waiting for XPCS power-up\n");
+	pr_info("Waiting for XPCS power-up\n");
 	if (serdes_xpcs_wait_for_power_good(base, xpcs)) {
 		pr_err("XPCS power-up failed\n");
 		return -EXIT_FAILURE;

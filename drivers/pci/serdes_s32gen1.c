@@ -225,7 +225,7 @@ int rgm_release_reset(u32 pid)
 
 int s32_deassert_serdes_reset(struct s32_serdes *pcie)
 {
-	debug("%s: SerDes%d\n", __func__, pcie->id);
+	printf("%s: SerDes%d\n", __func__, pcie->id);
 
 	/* Deassert SerDes reset */
 	if (pcie->id == 0)
@@ -246,7 +246,7 @@ int s32_deassert_serdes_reset(struct s32_serdes *pcie)
 
 bool s32_assert_serdes_reset(struct s32_serdes *pcie)
 {
-	debug("%s: SerDes%d\n", __func__, pcie->id);
+	printf("%s: SerDes%d\n", __func__, pcie->id);
 
 	/* Assert SerDes reset */
 	if (pcie->id == 0)
@@ -338,12 +338,12 @@ bool s32_serdes_init(struct s32_serdes *pcie)
 
 	/* Set the clock for the Serdes module */
 	if (pcie->clktype == CLK_INT) {
-		debug("Set internal clock\n");
+		printf("Set internal clock\n");
 		BCLR32(pcie->dbi + SS_PHY_GEN_CTRL,
 		       PHY_GEN_CTRL_REF_USE_PAD);
 		BSET32(pcie->dbi + SS_SS_RW_REG_0, 1 << 23);
 	} else {
-		debug("Set external clock\n");
+		printf("Set external clock\n");
 		BSET32(pcie->dbi + SS_PHY_GEN_CTRL,
 		       PHY_GEN_CTRL_REF_USE_PAD);
 		BCLR32(pcie->dbi + SS_SS_RW_REG_0, 1 << 23);
@@ -398,7 +398,7 @@ enum serdes_dev_type s32_serdes_get_mode_from_hwconfig(int id)
 	sprintf(pcie_name, "pcie%d", id);
 	enum serdes_dev_type devtype = SERDES_INVALID;
 
-	debug("%s: testing hwconfig for '%s'\n", __func__,
+	printf("%s: testing hwconfig for '%s'\n", __func__,
 		pcie_name);
 
 	if (hwconfig_subarg_cmp(pcie_name, "mode", "rc"))
@@ -500,7 +500,7 @@ static int s32_serdes_get_config_from_device_tree(struct s32_serdes *pcie)
 	int node = dev_of_offset(dev);
 	int ret = 0;
 
-	debug("dt node: %d\n", node);
+	printf("dt node: %d\n", node);
 
 	ret = fdt_get_named_resource(fdt, node, "reg", "reg-names",
 				     "dbi", &pcie->dbi_res);
@@ -513,7 +513,7 @@ static int s32_serdes_get_config_from_device_tree(struct s32_serdes *pcie)
 				fdt_resource_size(&pcie->dbi_res),
 				MAP_NOCACHE);
 
-	debug("%s: dbi: 0x%p (0x%p)\n", __func__, (void *)pcie->dbi_res.start,
+	printf("%s: dbi: 0x%p (0x%p)\n", __func__, (void *)pcie->dbi_res.start,
 			pcie->dbi);
 
 	pcie->id = fdtdec_get_int(fdt, node, "device_id", -1);
@@ -549,7 +549,7 @@ static int s32_serdes_probe(struct udevice *dev)
 	int ret = 0;
 	bool combo_mode;
 
-	debug("%s: probing %s\n", __func__, dev->name);
+	printf("%s: probing %s\n", __func__, dev->name);
 	if (!pcie) {
 		printf("s32-serdes: invalid internal data\n");
 		return -EINVAL;
@@ -605,9 +605,13 @@ static int s32_serdes_probe(struct udevice *dev)
 	 */
 	s32_serdes_disable_ltssm(pcie->dbi);
 
+        printf("After ltssm\n");
+
 	/* Apply the base SerDes/PHY settings */
 	if (!s32_serdes_init(pcie))
 		return ret;
+
+         printf("After serdes_init devtype = %d xpcs_mode %d dbi = 0x%x \n", pcie->devtype ,pcie->xpcs_mode, pcie->dbi);
 
 	if (IS_SERDES_SGMII(pcie->devtype) &&
 	    pcie->xpcs_mode != SGMII_INAVALID) {
@@ -630,7 +634,7 @@ static int s32_serdes_probe(struct udevice *dev)
 		/* Update the max link depending on other factors */
 
 		get_serdes_mode_str(pcie->devtype, pcie->xpcs_mode, mode);
-		debug("SerDes%d: Configure as %s\n", pcie->id, mode);
+		printf("SerDes%d: Configure as %s\n", pcie->id, mode);
 		if (IS_SERDES_SGMII(pcie->devtype))
 			pcie->linkwidth = X1;
 
@@ -650,7 +654,7 @@ static int s32_serdes_probe(struct udevice *dev)
 		s32_serdes_enable_ltssm(pcie->dbi);
 
 		if (s32_pcie_wait_link_up(pcie->dbi)) {
-			debug("SerDes%d: link is up (X%d)\n", pcie->id,
+			printf("SerDes%d: link is up (X%d)\n", pcie->id,
 					pcie->linkwidth);
 		} else {
 			if (pcie->linkwidth > X1) {
@@ -665,7 +669,7 @@ static int s32_serdes_probe(struct udevice *dev)
 
 				s32_serdes_enable_ltssm(pcie->dbi);
 				if (s32_pcie_wait_link_up(pcie->dbi))
-					debug("SerDes%d: link is up (X%d)\n",
+					printf("SerDes%d: link is up (X%d)\n",
 						pcie->id, pcie->linkwidth);
 			}
 		}
@@ -683,7 +687,7 @@ int initr_pci(void)
 {
 	struct udevice *bus;
 
-	debug("%s\n", __func__);
+	printf("%s\n", __func__);
 
 	/*
 	 * Enumerate all known UCLASS_PCI_GENERIC devices. This will
